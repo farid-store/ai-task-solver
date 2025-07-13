@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">AI Task Solver</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #6a0572; /* Deep Purple */
+            --primary-dark: #4b0053;
+            --secondary-color: #34495e; /* Dark Blue Gray */
+            --background-light: #f8f9fa; /* Off-white */
+            --card-background: #ffffff;
+            --text-color: #333;
+            --border-color: #e0e0e0;
+            --shadow-color: rgba(0, 0, 0, 0.07);
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --warning-color: #ffc107;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative; /* Untuk posisi language-switcher */
+        }
+
+        header h1 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-weight: 700;
+            font-size: 2.8em;
+        }
+
+        .subtitle {
+            color: var(--secondary-color);
+            font-size: 1.2em;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Language Switcher */
+        .language-switcher {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            gap: 10px;
+        }
+        .language-switcher button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+        .language-switcher button:hover {
+            background-color: var(--primary-dark);
+        }
+        .language-switcher button.active {
+            background-color: var(--secondary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .card {
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px var(--shadow-color);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+        }
+
+        .card h2 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--primary-dark);
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        /* --- Form Elements --- */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        textarea {
+            width: calc(100% - 24px); 
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
+            resize: vertical;
+            min-height: 80px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(106, 5, 114, 0.25);
+            outline: none;
+        }
+
+        /* --- File Upload Area --- */
+        .upload-area {
+            border: 2px dashed var(--primary-color); /* Border warna primary */
+            background-color: var(--background-light); /* Background lebih terang */
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 20px;
+        }
+        .upload-area:hover {
+            border-color: var(--primary-dark);
+            background-color: #f1f2f3;
+            box-shadow: 0 0 0 4px rgba(106, 5, 114, 0.1);
+        }
+        .upload-area.drag-over {
+            border-color: var(--primary-dark);
+            background-color: #e6e6fa; /* Lavender-ish */
+            box-shadow: 0 0 0 5px rgba(106, 5, 114, 0.3);
+        }
+        .upload-area input[type="file"] {
+            display: none; /* Sembunyikan input file asli */
+        }
+        .upload-area p {
+            margin: 0;
+            color: var(--secondary-color);
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+        .upload-area .file-icon {
+            font-size: 3em;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        .upload-area .file-name {
+            margin-top: 10px;
+            font-size: 0.95em;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+
+        /* --- Buttons --- */
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease, opacity 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .primary-btn {
+            background-color: var(--primary-color);
+            color: white;
+            width: 100%;
+            margin-top: 15px;
+        }
+        .primary-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        .primary-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.8;
+            transform: none;
+        }
+
+        .secondary-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            width: auto;
+            align-self: flex-end; /* Pindahkan tombol download ke kanan */
+            margin-top: 15px;
+        }
+        .secondary-btn:hover {
+            background-color: #495e74; /* Sedikit lebih gelap */
+            transform: translateY(-2px);
+        }
+        .secondary-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.8;
+            transform: none;
+        }
+
+
+        /* --- Output Section --- */
+        .output-section .solution-result {
+            background-color: var(--background-light);
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            min-height: 300px; /* Cukup tinggi untuk hasil */
+            overflow-y: auto;
+            color: var(--text-color);
+            white-space: pre-wrap; /* Mempertahankan spasi dan baris baru */
+            word-break: break-word; /* Mencegah overflow kata panjang */
+            margin-bottom: 20px;
+        }
+        .output-section .placeholder-text {
+            color: #888;
+            font-style: italic;
+        }
+        /* Styling for structured output from AI, if applicable */
+        .output-section .solution-heading {
+            color: var(--primary-dark);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.4em;
+            margin-top: 0;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .output-section .solution-paragraph {
+            margin-bottom: 15px;
+        }
+        .output-section strong {
+            color: var(--primary-color);
+        }
+
+        /* --- Messages & Spinner --- */
+        .message-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .success-message {
+            background-color: #d4edda;
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+        .warning-message {
+            background-color: #fff3cd;
+            color: var(--warning-color);
+            border: 1px solid var(--warning-color);
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--secondary-color);
+            font-size: 0.9em;
+        }
+
+        /* --- Responsive Adjustments --- */
+        @media (min-width: 768px) {
+            main {
+                flex-direction: row;
+            }
+            .input-section, .output-section {
+                flex: 1;
+            }
+            .output-section {
+                display: flex;
+                flex-direction: column;
+            }
+            .language-switcher {
+                top: 20px; /* Sesuaikan posisi di desktop */
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="language-switcher">
+                <button id="langEnBtn" class="active" data-lang="en">EN</button>
+                <button id="langIdBtn" data-lang="id">ID</button>
+            </div>
+            <h1 id="headerTitle">AI Task Solver</h1>
+            <p id="headerSubtitle" class="subtitle">Upload your assignment file and let AI analyze and help you solve it. Supports various document formats!</p>
+        </header>
+
+        <main>
+            <section class="input-section card">
+                <h2 id="inputSectionTitle">Upload Task & Instructions</h2>
+                <form id="taskSolverForm">
+                    <div class="form-group">
+                        <label id="labelTaskInstructions" for="taskInstructions">Task Instructions for AI:</label>
+                        <textarea id="taskInstructions" rows="4" placeholder="e.g., 'Summarize the main points of this document.', 'Answer the questions on page 3.', 'Create an outline for a presentation based on this file.' (Be specific!)" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label id="labelUploadAssignment">Upload Your Assignment File:</label>
+                        <div id="uploadArea" class="upload-area">
+                            <span class="file-icon">📄</span>
+                            <input type="file" id="assignmentFileInput" accept="*" required> <p id="uploadAreaText">Drag & drop your file here, or click to browse</p>
+                            <div id="fileNameDisplay" class="file-name" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="solveBtn" class="btn primary-btn">
+                        <span id="buttonText">Analyze & Solve Task</span>
+                        <span id="loadingSpinner" class="loading-spinner" style="display: none;"></span>
+                    </button>
+                </form>
+            </section>
+
+            <section class="output-section card">
+                <h2 id="outputSectionTitle">Solution & Results</h2>
+                <div id="solutionResult" class="solution-result">
+                    <p id="placeholderSolution" class="placeholder-text">Upload your task file and provide instructions to see the AI's solution here.</p>
+                </div>
+                <button id="downloadBtn" class="btn secondary-btn" style="display: none;">Download Result</button>
+                <div id="message" class="message-box" style="display: none;"></div>
+            </section>
+        </main>
+
+        <footer>
+            <p id="footerText">&copy; 2025 AI Task Solver. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const langEnBtn = document.getElementById('langEnBtn');
+            const langIdBtn = document.getElementById('langIdBtn');
+
+            const pageTitle = document.getElementById('pageTitle');
+            const headerTitle = document.getElementById('headerTitle');
+            const headerSubtitle = document.getElementById('headerSubtitle');
+            const inputSectionTitle = document.getElementById('inputSectionTitle');
+            const labelTaskInstructions = document.getElementById('labelTaskInstructions');
+            const taskInstructionsTextarea = document.getElementById('taskInstructions');
+            const labelUploadAssignment = document.getElementById('labelUploadAssignment');
+            const uploadAreaText = document.getElementById('uploadAreaText');
+            const solveBtn = document.getElementById('solveBtn');
+            const buttonText = document.getElementById('buttonText');
+            const outputSectionTitle = document.getElementById('outputSectionTitle');
+            const placeholderSolution = document.getElementById('placeholderSolution');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const footerText = document.getElementById('footerText');
+            const messageBox = document.getElementById('message');
+
+            const taskSolverForm = document.getElementById('taskSolverForm');
+            const assignmentFileInput = document.getElementById('assignmentFileInput');
+            const uploadArea = document.getElementById('uploadArea');
+            const fileNameDisplay = document.getElementById('fileNameDisplay');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const solutionResultDiv = document.getElementById('solutionResult');
+
+            let uploadedFile = null;
+            let currentSolutionText = '';
+            let currentLang = localStorage.getItem('appLang') || 'en'; // Default ke 'en' atau dari local storage
+
+            const translations = {
+                en: {
+                    pageTitle: "AI Task Solver",
+                    headerTitle: "AI Task Solver",
+                    headerSubtitle: "Upload your assignment file and let AI analyze and help you solve it. Supports various document formats!",
+                    inputSectionTitle: "Upload Task & Instructions",
+                    labelTaskInstructions: "Task Instructions for AI:",
+                    placeholderInstructions: "e.g., 'Summarize the main points of this document.', 'Answer the questions on page 3.', 'Create an outline for a presentation based on this file.' (Be specific!)",
+                    labelUploadAssignment: "Upload Your Assignment File:",
+                    uploadAreaText: "Drag & drop your file here, or click to browse",
+                    analyzeButton: "Analyze & Solve Task",
+                    analyzingButton: "Analyzing & Solving...",
+                    outputSectionTitle: "Solution & Results",
+                    placeholderSolution: "Upload your task file and provide instructions to see the AI's solution here.",
+                    downloadButton: "Download Result",
+                    footerText: "&copy; 2025 AI Task Solver. All rights reserved.",
+                    // Messages
+                    msgUploadFile: "Please upload an assignment file.",
+                    msgFileSize: "File size exceeds 10MB. Please upload a smaller file.",
+                    msgProvideInstructions: "Please provide instructions for the AI.",
+                    msgTaskSolved: "Task solved successfully!",
+                    msgServerError: "Server error during analysis. Please try again.",
+                    msgFailedSolution: "Failed to get solution.",
+                    msgErrorPrefix: "Error: ",
+                    msgNoSolutionDownload: "No solution to download. Please solve a task first.",
+                    msgSolutionDownloaded: "Solution downloaded!"
+                },
+                id: {
+                    pageTitle: "Penyelesai Tugas AI",
+                    headerTitle: "Penyelesai Tugas AI",
+                    headerSubtitle: "Unggah file tugas Anda dan biarkan AI menganalisis serta membantu menyelesaikannya. Mendukung berbagai format dokumen!",
+                    inputSectionTitle: "Unggah Tugas & Instruksi",
+                    labelTaskInstructions: "Instruksi Tugas untuk AI:",
+                    placeholderInstructions: "cth: 'Rangkum poin-poin utama dokumen ini.', 'Jawab pertanyaan di halaman 3.', 'Buat kerangka presentasi berdasarkan file ini.' (Harap spesifik!)",
+                    labelUploadAssignment: "Unggah File Tugas Anda:",
+                    uploadAreaText: "Seret & lepas file Anda di sini, atau klik untuk mencari",
+                    analyzeButton: "Analisis & Selesaikan Tugas",
+                    analyzingButton: "Menganalisis & Menyelesaikan...",
+                    outputSectionTitle: "Solusi & Hasil",
+                    placeholderSolution: "Unggah file tugas Anda dan berikan instruksi untuk melihat solusi AI di sini.",
+                    downloadButton: "Unduh Hasil",
+                    footerText: "&copy; 2025 Penyelesai Tugas AI. Semua Hak Dilindungi.",
+                    // Messages
+                    msgUploadFile: "Mohon unggah file tugas.",
+                    msgFileSize: "Ukuran file melebihi 10MB. Mohon unggah file yang lebih kecil.",
+                    msgProvideInstructions: "Mohon berikan instruksi untuk AI.",
+                    msgTaskSolved: "Tugas berhasil diselesaikan!",
+                    msgServerError: "Terjadi kesalahan server saat analisis. Mohon coba lagi.",
+                    msgFailedSolution: "Gagal mendapatkan solusi.",
+                    msgErrorPrefix: "Kesalahan: ",
+                    msgNoSolutionDownload: "Tidak ada solusi untuk diunduh. Mohon selesaikan tugas terlebih dahulu.",
+                    msgSolutionDownloaded: "Solusi berhasil diunduh!"
+                }
+            };
+
+            function updateUI() {
+                const t = translations[currentLang];
+
+                pageTitle.textContent = t.pageTitle;
+                headerTitle.textContent = t.headerTitle;
+                headerSubtitle.textContent = t.headerSubtitle;
+                inputSectionTitle.textContent = t.inputSectionTitle;
+                labelTaskInstructions.textContent = t.labelTaskInstructions;
+                taskInstructionsTextarea.placeholder = t.placeholderInstructions;
+                labelUploadAssignment.textContent = t.labelUploadAssignment;
+                uploadAreaText.textContent = t.uploadAreaText;
+                buttonText.textContent = t.analyzeButton;
+                outputSectionTitle.textContent = t.outputSectionTitle;
+                placeholderSolution.textContent = t.placeholderSolution;
+                downloadBtn.textContent = t.downloadButton;
+                footerText.innerHTML = t.footerText; // Use innerHTML for copyright symbol
+
+                // Update active language button style
+                langEnBtn.classList.toggle('active', currentLang === 'en');
+                langIdBtn.classList.toggle('active', currentLang === 'id');
+
+                // If a message is currently displayed, clear and re-display it to ensure translation
+                if (messageBox.style.display === 'block') {
+                    hideMessage(); // Clear old message
+                    // Note: If you want to translate active messages, you'd need to store the message key
+                    // and re-trigger showMessage with the translated key. For simplicity, we just clear it.
+                }
+            }
+
+            // Initial UI update
+            updateUI();
+
+            // Language Switcher Event Listeners
+            langEnBtn.addEventListener('click', () => {
+                currentLang = 'en';
+                localStorage.setItem('appLang', 'en');
+                updateUI();
+            });
+
+            langIdBtn.addEventListener('click', () => {
+                currentLang = 'id';
+                localStorage.setItem('appLang', 'id');
+                updateUI();
+            });
+
+            // --- File Upload Logic (Drag & Drop) ---
+            uploadArea.addEventListener('click', () => assignmentFileInput.click());
+            
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('drag-over');
+            });
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('drag-over');
+            });
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('drag-over');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
+                }
+            });
+
+            assignmentFileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+
+            function handleFile(file) {
+                const MAX_FILE_SIZE_MB = 10;
+                if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+                    showMessage(translations[currentLang].msgFileSize, 'error');
+                    fileNameDisplay.style.display = 'none';
+                    uploadedFile = null;
+                    return;
+                }
+
+                uploadedFile = file;
+                fileNameDisplay.textContent = file.name;
+                fileNameDisplay.style.display = 'block';
+                hideMessage(); // Clear any previous error message
+            }
+
+            // --- Form Submission Logic ---
+            taskSolverForm.addEventListener('submit', async function(event) {
+                event.preventDefault();
+
+                solutionResultDiv.innerHTML = `<p class="placeholder-text">${translations[currentLang].analyzingButton}...</p>`;
+                downloadBtn.style.display = 'none';
+                hideMessage();
+
+                if (!uploadedFile) {
+                    showMessage(translations[currentLang].msgUploadFile, 'error');
+                    return;
+                }
+                if (!taskInstructionsTextarea.value.trim()) {
+                    showMessage(translations[currentLang].msgProvideInstructions, 'error');
+                    return;
+                }
+
+                setLoadingState(true);
+
+                const formData = new FormData();
+                formData.append('assignmentFile', uploadedFile);
+                formData.append('taskInstructions', taskInstructionsTextarea.value.trim());
+                formData.append('outputLanguage', currentLang); // Kirim bahasa output ke API
+
+                try {
+                    const response = await fetch('/api/solve-task', {
+                        method: 'POST',
+                        body: formData, // FormData otomatis set Content-Type: multipart/form-data
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || translations[currentLang].msgServerError);
+                    }
+
+                    const data = await response.json();
+                    currentSolutionText = data.solution; // Store the solution for download
+                    displaySolution(data.solution);
+                    downloadBtn.style.display = 'inline-flex'; // Show download button
+                    showMessage(translations[currentLang].msgTaskSolved, 'success');
+
+                } catch (err) {
+                    console.error('Task solving error:', err);
+                    solutionResultDiv.innerHTML = `<p class="placeholder-text">${translations[currentLang].msgFailedSolution}</p>`;
+                    showMessage(`${translations[currentLang].msgErrorPrefix} ${err.message}`, 'error');
+                } finally {
+                    setLoadingState(false);
+                }
+            });
+
+            // --- Download Button Logic ---
+            downloadBtn.addEventListener('click', () => {
+                if (!currentSolutionText) {
+                    showMessage(translations[currentLang].msgNoSolutionDownload, 'warning');
+                    return;
+                }
+
+                const blob = new Blob([currentSolutionText], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `AI_Solution_${Date.now()}.txt`; // Nama file
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url); // Bersihkan URL objek
+                showMessage(translations[currentLang].msgSolutionDownloaded, 'success');
+            });
+
+            // --- Helper Functions ---
+            function setLoadingState(isLoading) {
+                solveBtn.disabled = isLoading;
+                buttonText.textContent = isLoading ? translations[currentLang].analyzingButton : translations[currentLang].analyzeButton;
+                loadingSpinner.style.display = isLoading ? 'inline-block' : 'none';
+            }
+
+            function showMessage(msg, type) {
+                messageBox.textContent = msg;
+                messageBox.className = `message-box ${type}-message`;
+                messageBox.style.display = 'block';
+            }
+
+            function hideMessage() {
+                messageBox.style.display = 'none';
+            }
+
+            function displaySolution(solution) {
+                // Asumsi 'solution' adalah string yang bisa berisi markdown.
+                // Untuk demo, kita akan tampilkan sebagai pre-wrap.
+                solutionResultDiv.innerHTML = `<p class="solution-paragraph">${solution.replace(/\n/g, '<br>')}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
