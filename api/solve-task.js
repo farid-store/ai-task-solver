@@ -83,11 +83,11 @@ export default async function handler(request, response) {
 
   } catch (error) {
     console.error('Error in solve-task API:', error);
-    // Tambahkan pesan error yang bisa disesuaikan bahasa di frontend
-    const errorMessage = outputLanguage === 'id' ? 
+    // Pastikan ini selalu mengirim JSON
+    const errorMessage = request.headers['accept-language'] && request.headers['accept-language'].includes('id') ? 
         `Gagal memproses tugas. Detail kesalahan: ${error.message}` : 
         `Failed to process task. Error details: ${error.message}`;
 
-    response.status(500).json({ message: errorMessage });
+    response.status(500).json({ message: errorMessage }); // INI YANG PENTING
   }
 }
